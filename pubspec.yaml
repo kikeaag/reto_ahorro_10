@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_staggered_animations: ^1.1.0
 
+  # State management / DI para la capa de presentación.
+  provider: ^6.1.2
+
   # Hive for local storage
   hive: ^2.2.3
   hive_flutter: ^1.1.0

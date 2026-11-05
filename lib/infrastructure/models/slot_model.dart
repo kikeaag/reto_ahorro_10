@@ -1,19 +1,11 @@
 import 'package:hive/hive.dart';
+import 'package:money_challenge/domain/entities/slot.dart';
 
-/// Modelo para representar un "slot" de dinero.
-/// Campos: id (String), checked (bool), amount (double)
-class Slot {
-  String id;
-  bool checked;
-  double amount;
-
-  Slot({required this.id, required this.checked, required this.amount});
-
-  @override
-  String toString() => 'Slot(id: $id, checked: $checked, amount: $amount)';
-}
-
-/// Adapter manual para Hive. typeId debe ser único en la aplicación.
+/// Adaptador de Hive para la entidad [Slot].
+///
+/// **Invariantes críticos** (ver AGENTS.md): no cambiar ni reutilizar el
+/// `typeId` (corrompe los datos leídos del disco) ni el orden de los campos
+/// (`writeString`, `writeBool`, `writeDouble`).
 class SlotAdapter extends TypeAdapter<Slot> {
   @override
   final int typeId = 0;

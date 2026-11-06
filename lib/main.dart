@@ -10,7 +10,7 @@ import 'package:money_challenge/infrastructure/datasources/hive_slot_datasource.
 import 'package:money_challenge/infrastructure/models/slot_model.dart';
 import 'package:money_challenge/infrastructure/repositories/savings_repository_impl.dart';
 import 'package:money_challenge/presentation/controllers/home_controller.dart';
-import 'package:money_challenge/presentation/screens/home_screen.dart';
+import 'package:money_challenge/presentation/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
       create: (_) => buildHomeController(),
       child: MaterialApp(
         title: 'Alcancía 5k',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
           // Fuente de toda la app: Roboto, la oficial de Material 3
@@ -73,7 +74,7 @@ class MyApp extends StatelessWidget {
             checkColor: WidgetStateProperty.all(Colors.white),
           ),
         ),
-        home: const HomeScreen(),
+        home: const SplashScreen(),
       ),
     );
   }

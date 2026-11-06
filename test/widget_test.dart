@@ -9,6 +9,7 @@ import 'package:money_challenge/infrastructure/models/slot_model.dart';
 import 'package:money_challenge/main.dart';
 import 'package:money_challenge/presentation/screens/goal_reached_screen.dart';
 import 'package:money_challenge/presentation/screens/home_screen.dart';
+import 'package:money_challenge/presentation/screens/splash_screen.dart';
 import 'package:money_challenge/presentation/utils/app_download_links.dart';
 
 Future<void> main() async {
@@ -24,6 +25,23 @@ Future<void> main() async {
   Hive.registerAdapter(SlotAdapter());
   await Hive.deleteBoxFromDisk('slots');
   await Hive.openBox<Slot>('slots');
+
+  testWidgets('muestra el splash animado y transiciona al home',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+
+    // Al arrancar se muestra el SplashScreen con el título y subtítulo.
+    expect(find.byType(SplashScreen), findsOneWidget);
+    expect(find.text('Alcancía 5k'), findsOneWidget);
+    expect(find.text('Tu reto de ahorro a \$5,000'), findsOneWidget);
+    expect(find.byType(HomeScreen), findsNothing);
+
+    // Al terminar la animación del splash y la entrada del home, queda en HomeScreen.
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SplashScreen), findsNothing);
+    expect(find.byType(HomeScreen), findsOneWidget);
+  });
 
   testWidgets('renders the separated alcancía groups', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());

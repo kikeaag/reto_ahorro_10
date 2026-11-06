@@ -4,6 +4,7 @@ import 'package:money_challenge/presentation/controllers/home_controller.dart';
 import 'package:money_challenge/presentation/screens/goal_reached_screen.dart';
 import 'package:money_challenge/presentation/utils/money_format.dart';
 import 'package:money_challenge/presentation/widgets/group_header.dart';
+import 'package:money_challenge/presentation/widgets/rolling_number_text.dart';
 import 'package:money_challenge/presentation/widgets/slot_tile.dart';
 import 'package:money_challenge/presentation/widgets/stats_header.dart';
 import 'package:provider/provider.dart';
@@ -128,7 +129,10 @@ class _HomeScreenState extends State<HomeScreen>
                       color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ),
                     const SizedBox(width: 8),
-                    Text(formatMoney(summary.total)),
+                    RollingNumberText(
+                      numericValue: summary.total,
+                      text: formatMoney(summary.total),
+                    ),
                   ],
                 ),
               )

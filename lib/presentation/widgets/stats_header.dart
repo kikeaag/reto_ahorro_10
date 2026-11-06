@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_challenge/domain/entities/savings_summary.dart';
 import 'package:money_challenge/presentation/utils/money_format.dart';
+import 'package:money_challenge/presentation/widgets/rolling_number_text.dart';
 
 /// Tarjeta de estadísticas (Material 3): total guardado + porcentaje con
 /// barra de progreso, y debajo el nº de casillas marcadas.
@@ -54,10 +55,9 @@ class StatsHeader extends StatelessWidget {
                             ?.copyWith(color: cs.onSurfaceVariant),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        formatMoney(summary.total),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      RollingNumberText(
+                        numericValue: summary.total,
+                        text: formatMoney(summary.total),
                         style: theme.textTheme.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
@@ -75,8 +75,9 @@ class StatsHeader extends StatelessWidget {
                           ?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      '${summary.percent.toStringAsFixed(2)} %',
+                    RollingNumberText(
+                      numericValue: summary.percent,
+                      text: '${summary.percent.toStringAsFixed(2)} %',
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: cs.primary,
@@ -87,14 +88,19 @@ class StatsHeader extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 14),
-            // Barra de progreso con esquinas redondeadas.
+            // Barra de progreso animada con esquinas redondeadas.
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: summary.percent / 100,
-                minHeight: 8,
-                color: cs.primary,
-                backgroundColor: cs.primary.withAlpha((0.18 * 255).round()),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(end: summary.percent / 100),
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeOutCubic,
+                builder: (context, animatedValue, _) => LinearProgressIndicator(
+                  value: animatedValue,
+                  minHeight: 8,
+                  color: cs.primary,
+                  backgroundColor: cs.primary.withAlpha((0.18 * 255).round()),
+                ),
               ),
             ),
             const SizedBox(height: 12),

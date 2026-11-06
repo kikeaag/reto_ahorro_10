@@ -26,10 +26,11 @@ Future<void> main() async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('10k Challenge'), findsOneWidget);
+    expect(find.text('Alcancía 5k'), findsOneWidget);
     expect(find.text('0.00 %'), findsOneWidget);
     expect(find.text('Monedas de \$5'), findsOneWidget);
-    expect(find.text('Casillas totales: 228'), findsOneWidget);
+    expect(find.text('Billetes de \$20', skipOffstage: false), findsOneWidget);
+    expect(find.text('Casillas totales: 0 / 184'), findsOneWidget);
 
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
     await tester.pump();
@@ -37,9 +38,48 @@ Future<void> main() async {
     expect(
       find.descendant(
         of: find.byType(AppBar),
-        matching: find.text('Total guardado: \$0.00'),
+        matching: find.byIcon(Icons.savings),
       ),
       findsOneWidget,
     );
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text('\$0'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('colapsa y expande un grupo completado desde su encabezado',
+      (WidgetTester tester) async {
+    // Marcar las 56 casillas de $5 directamente en la box (el grupo queda
+    // completado: 56 / 56).
+    final box = Hive.box<Slot>('slots');
+    for (var i = 1; i <= 56; i++) {
+      final id = '5.0_$i';
+      final slot = box.get(id);
+      if (slot != null) box.put(id, slot.copyWith(checked: true));
+    }
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('56 / 56'), findsOneWidget);
+    expect(find.text('5'), findsWidgets);
+
+    // Contraer: solo debe quedar el encabezado, sin casillas.
+    await tester.tap(find.text('Monedas de \$5'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Monedas de \$5'), findsOneWidget);
+    expect(find.text('56 / 56'), findsOneWidget);
+    expect(find.text('5'), findsNothing);
+
+    // Volver a expandir.
+    await tester.tap(find.text('Monedas de \$5'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('5'), findsWidgets);
   });
 }

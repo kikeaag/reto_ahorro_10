@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:money_challenge/domain/entities/savings_summary.dart';
+import 'package:money_challenge/presentation/utils/money_format.dart';
 
-/// Textos superiores: porcentaje de avance, total guardado y nº de casillas.
+/// Tarjeta de estadísticas (Material 3): total guardado + porcentaje con
+/// barra de progreso, y debajo el nº de casillas marcadas.
+///
+/// Los textos `0.00 %` y `Casillas totales: n / N` los assertúa el test
+/// (ver AGENTS.md): no cambiarlos sin actualizar `test/widget_test.dart`.
 class StatsHeader extends StatelessWidget {
   const StatsHeader({super.key, required this.summary});
 
@@ -9,25 +14,107 @@ class StatsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text('${summary.percent.toStringAsFixed(2)} %'),
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: cs.surfaceContainerHighest,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Icono tonal en primaryContainer (patrón M3).
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.savings,
+                    color: cs.onPrimaryContainer,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Total guardado',
+                        style: theme.textTheme.labelMedium
+                            ?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        formatMoney(summary.total),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Progreso',
+                      style: theme.textTheme.labelMedium
+                          ?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${summary.percent.toStringAsFixed(2)} %',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            // Barra de progreso con esquinas redondeadas.
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: summary.percent / 100,
+                minHeight: 8,
+                color: cs.primary,
+                backgroundColor: cs.primary.withAlpha((0.18 * 255).round()),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.checklist, size: 18, color: cs.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Casillas totales: ${summary.checkedSlots} / '
+                    '${summary.totalSlots}',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text('Total guardado: \$${summary.total.toStringAsFixed(2)}'),
-        ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text('Casillas totales: ${summary.totalSlots}'),
-        ),
-        const SizedBox(height: 18),
-      ],
+      ),
     );
   }
 }

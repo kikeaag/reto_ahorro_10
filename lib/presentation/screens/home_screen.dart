@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_challenge/domain/entities/savings_summary.dart';
 import 'package:money_challenge/presentation/controllers/home_controller.dart';
+import 'package:money_challenge/presentation/utils/money_format.dart';
 import 'package:money_challenge/presentation/widgets/group_header.dart';
 import 'package:money_challenge/presentation/widgets/slot_tile.dart';
 import 'package:money_challenge/presentation/widgets/stats_header.dart';
@@ -24,6 +25,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   final ScrollController _scrollController = ScrollController();
   bool _showSavedTotalInAppBar = false;
+
+  /// Montos de los grupos **completados** que el usuario colapsó (estado de
+  /// UI puro y efímero: no persiste y al reiniciar todo arranca expandido).
+  final Set<double> _collapsedGroups = {};
 
   /// La animación de arranque se ejecuta **una sola vez** al iniciar la app
   /// (nunca al hacer scroll): el flag se limpia al terminar el controlador.
@@ -107,18 +112,35 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text(
-          _showSavedTotalInAppBar
-              ? 'Total guardado: \$${summary.total.toStringAsFixed(2)}'
-              : '10k Challenge',
-        ),
+        // Al hacer scroll: el mismo cerdito (Icons.savings) de la tarjeta
+        // de estadísticas + la cantidad guardada, con Semantics para
+        // accesibilidad.
+        title: _showSavedTotalInAppBar
+            ? Semantics(
+                label: 'Total guardado: ${formatMoney(summary.total)}',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.savings,
+                      // Mismo tono del glifo en la tarjeta de estadísticas.
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(formatMoney(summary.total)),
+                  ],
+                ),
+              )
+            : const Text('Alcancía 5k'),
       ),
       body: SafeArea(
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              // 16 px de margen inferior para separar la tarjeta de
+              // estadísticas del primer encabezado de grupo.
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
               sliver: SliverToBoxAdapter(child: StatsHeader(summary: summary)),
             ),
             ..._buildGroupSlivers(context, controller, summary),
@@ -140,12 +162,40 @@ class _HomeScreenState extends State<HomeScreen>
     var runningIndex = 0;
 
     for (final group in summary.groups) {
+      final isComplete =
+          group.targetSlots > 0 && group.checkedSlots == group.targetSlots;
+      final isCollapsed =
+          isComplete && _collapsedGroups.contains(group.amount);
+
       slivers.add(
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          sliver: SliverToBoxAdapter(child: GroupHeader(group: group)),
+          // Colapsado: sin grid, así que el margen inferior del encabezado
+          // mantiene el mismo ritmo visual que el padding del grid (18 px).
+          padding: isCollapsed
+              ? const EdgeInsets.fromLTRB(20, 0, 20, 18)
+              : const EdgeInsets.symmetric(horizontal: 20),
+          sliver: SliverToBoxAdapter(
+            child: GroupHeader(
+              group: group,
+              collapsible: isComplete,
+              collapsed: isCollapsed,
+              onToggle: isComplete
+                  ? () => setState(() {
+                        if (!_collapsedGroups.remove(group.amount)) {
+                          _collapsedGroups.add(group.amount);
+                        }
+                      })
+                  : null,
+            ),
+          ),
         ),
       );
+
+      // Contraído: no se genera ni se construye el grid del grupo.
+      if (isCollapsed) {
+        runningIndex += group.slots.length;
+        continue;
+      }
 
       final children = List<Widget>.generate(group.slots.length, (index) {
         final globalIndex = runningIndex + index;

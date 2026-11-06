@@ -50,9 +50,12 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => buildHomeController(),
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Alcancía 5k',
         theme: ThemeData(
           useMaterial3: true,
+          // Fuente de toda la app: Roboto, la oficial de Material 3
+          // (declarada en pubspec.yaml).
+          fontFamily: 'Roboto',
           colorScheme: colorScheme,
           checkboxTheme: CheckboxThemeData(
             // When selected, use the exact Material 3 lilac color.

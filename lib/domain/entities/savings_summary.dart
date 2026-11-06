@@ -10,6 +10,7 @@ class SavingsSummary {
     required this.total,
     required this.percent,
     required this.totalSlots,
+    required this.checkedSlots,
     required this.groups,
   });
 
@@ -22,6 +23,9 @@ class SavingsSummary {
   /// Total de casillas (todas, sin importar el estado).
   final int totalSlots;
 
+  /// Casillas marcadas (`checked == true`).
+  final int checkedSlots;
+
   /// Progreso por grupo, en el mismo orden que [denominationGroups].
   final List<GroupProgress> groups;
 
@@ -29,12 +33,16 @@ class SavingsSummary {
   factory SavingsSummary.fromSlots(List<Slot> slots) {
     double total = 0;
     int totalSlots = 0;
+    int checkedSlots = 0;
 
     // Índice de casillas por monto (un solo pasagge).
     final byAmount = <double, List<Slot>>{};
     for (final slot in slots) {
       totalSlots++;
-      if (slot.checked) total += slot.amount;
+      if (slot.checked) {
+        total += slot.amount;
+        checkedSlots++;
+      }
       (byAmount[slot.amount] ??= <Slot>[]).add(slot);
     }
 
@@ -49,6 +57,7 @@ class SavingsSummary {
       total: total,
       percent: percent,
       totalSlots: totalSlots,
+      checkedSlots: checkedSlots,
       groups: groups,
     );
   }

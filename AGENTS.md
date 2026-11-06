@@ -5,7 +5,7 @@ Guía de reglas de negocio e invariantes para trabajar en esta app. Léela antes
 ## Visión general
 
 App Flutter de reto de ahorro: el usuario marca casillas (cada una representa una moneda de cierto
-denominado) hasta alcanzar una meta de **$10,000.00**.
+denominado) hasta alcanzar una meta de **$5,000.00**.
 
 - **Stack:** Flutter 3.44.9 (stable) · Dart `^3.12.2` · Hive (almacenamiento local) · `provider`
 - **Sin backend:** todos los datos viven en el dispositivo, sin sincronización ni backup.
@@ -25,6 +25,7 @@ denominado) hasta alcanzar una meta de **$10,000.00**.
 | `lib/infrastructure/` | Implementación concreta: `models/slot_model.dart` (`SlotAdapter`), `datasources/hive_slot_datasource.dart`, `repositories/savings_repository_impl.dart`. |
 | `lib/presentation/controllers/home_controller.dart` | `ChangeNotifier` que publica el `SavingsSummary`; **única vía de escritura desde la UI**. |
 | `lib/presentation/screens/home_screen.dart` | UI pura: slivers, grid y animación de arranque. |
+| `lib/presentation/utils/money_format.dart` | Helper `formatMoney` (entero + separador de miles, sin centavos). |
 | `lib/presentation/widgets/` | `StatsHeader`, `GroupHeader`, `SlotTile`. |
 | `test/widget_test.dart` | Único test. Depende de textos y del conteo de casillas (ver invariantes). |
 
@@ -32,40 +33,42 @@ denominado) hasta alcanzar una meta de **$10,000.00**.
 
 ### Meta
 
-- Meta global: **`goal = 10000.0`** (`lib/domain/entities/denomination_group.dart`).
+- Meta global: **`goal = 5000.0`** (`lib/domain/entities/denomination_group.dart`).
 
 ### Denominaciones (fuente única de verdad: `denominationGroups`)
 
 | Monto | Casillas | Subtotal |
 |---|---|---|
-| $5 | 40 | $200 |
+| $5 | 56 | $280 |
 | $10 | 54 | $540 |
-| $20 | 53 | $1,060 |
-| $50 | 54 | $2,700 |
-| $100 | 11 | $1,100 |
-| $200 | 12 | $2,400 |
-| $500 | 4 | $2,000 |
-| **Total** | **228** | **$10,000** |
+| $20 | 54 | $1,080 |
+| $50 | 6 | $300 |
+| $100 | 6 | $600 |
+| $200 | 6 | $1,200 |
+| $500 | 2 | $1,000 |
+| **Total** | **184** | **$5,000** |
 
 ### Invariantes (romperlos rompe la app)
 
-1. **La suma de los subtotales debe ser exactamente igual a la meta ($10,000).**
+1. **La suma de los subtotales debe ser exactamente igual a la meta ($5,000).**
    Si es menor, el progreso nunca llega a 100%. Si es mayor, se supera el 100% (aunque el
    porcentaje está con `clamp(0, 100)`). Si cambias `denominationGroups`, recalcula la suma.
-2. **El total de casillas es 228** y está hardcodeado en `test/widget_test.dart`
-   (`'Casillas totales: 228'`). Si cambias las cantidades, actualiza el test en el mismo cambio.
+2. **El total de casillas es 184** y está hardcodeado en `test/widget_test.dart`
+   (`'Casillas totales: 0 / 184'`). Si cambias las cantidades, actualiza el test en el mismo cambio.
 3. **Formato de ID de slot: `'${group.amount}_$i'`** → como `amount` es `double`, el id real es
    **`5.0_1`**, `10.0_7`, `500.0_4`… (no `5_1`). Se usa para deduplicar y reconciliar: **no
    cambiar el patrón** ni el tipo de `amount`, o existentes data se leería como malformada.
 4. **Interacción solo de toggle:** desde la UI solo se marca/desmarca una casilla. No existe
-   edición de montos ni borrado de casillas por el usuario.
+   edición de montos ni borrado de casillas por el usuario. Colapsar un grupo completado es
+   estado visual efímero: **no modifica datos**.
 
 ### Cálculos
 
 - **Total guardado** = suma de `amount` de las casillas con `checked == true`.
 - **Progreso (%)** = `total / goal * 100`, con `clamp(0.0, 100.0)`.
-- **Formato de presentación:** siempre 2 decimales. El porcentaje se muestra con **espacio antes
-  del símbolo**: `12.34 %`. El total como `$1234.00`.
+- **Formato de presentación:** el porcentaje siempre con 2 decimales y **espacio antes del
+  símbolo**: `12.34 %`. El total es un **entero con separador de miles y sin centavos**:
+  `$1234` → `$1,234` (helper `formatMoney` en `lib/presentation/utils/money_format.dart`).
 
 ### Reconciliación al arrancar (`InitializeSlots`)
 
@@ -99,13 +102,25 @@ denominado) hasta alcanzar una meta de **$10,000.00**.
 
 ## UI / UX
 
-- Título del AppBar: **`10k Challenge`**. Al hacer scroll `> 100px` cambia a
-  **`Total guardado: $X.XX`**.
-- Encabezado por grupo: **`Monedas de $X`** + contador **`n / total`** (casillas marcadas /
-  casillas del grupo).
-- Textos superiores: porcentaje (`XX.XX %`), `Total guardado: $X.XX`, `Casillas totales: N`.
+- Título del AppBar: **`Alcancía 5k`**. Al hacer scroll `> 100px` cambia al **icono `savings`
+  (cerdito)** en color **`onPrimaryContainer`** (igual que en la tarjeta) + la **cantidad
+  guardada** (`formatMoney(total)`, p. ej. `$5,000`), envuelto en
+  `Semantics(label: 'Total guardado: $X,XXX')`.
+- Encabezado por grupo: **`Monedas de $X`** ($5 y $10) o **`Billetes de $X`** ($20 en adelante)
+  + contador **`n / total`** (casillas marcadas / casillas del grupo).
+- Grupo **completado** (`n == total`): el encabezado se vuelve tocable (icono ▾/▴) y alterna el
+  colapso de sus casillas; colapsado solo quedan el título y el contador, con **18 px de margen
+  inferior** para separarlo del siguiente grupo. Estado efímero en
+  `HomeScreen` (`_collapsedGroups`): no persiste, al reiniciar todo arranca expandido y un grupo
+  incompleto siempre se muestra expandido.
+- Tarjeta de estadísticas (`StatsHeader`): `Card` M3 tonal (`surfaceContainerHighest`,
+  radius 16) con icono `savings` en `primaryContainer`, etiqueta **`Total guardado`** + monto
+  (`$X,XXX`), **`Progreso`** + porcentaje (`XX.XX %`) a la derecha, `LinearProgressIndicator`
+  redondeado en `primary`, y pie con icono `checklist` + **`Casillas totales: n / N`**.
 - Grid: **5 columnas**, `childAspectRatio: 1`.
 - Tema: Material 3 con semilla lila **`#6750A4`** como `primary` exacto, `onPrimary` blanco.
+  Fuente de toda la app: **Roboto** (variable, `fonts/Roboto-Variable.ttf`, familia `Roboto`
+  declarada en `pubspec.yaml` y `fontFamily` del `ThemeData`).
 - Los textos anteriores los assertúa el test: si los cambias, actualiza `test/widget_test.dart`.
 
 ## Rendimiento (reglas que el código ya establece — mantenerlas)
@@ -116,6 +131,7 @@ denominado) hasta alcanzar una meta de **$10,000.00**.
   `HomeController.toggle()` → `notifyListeners()`. **No usar `setState()` en el toggle**
   (causa rebuilds innecesarios).
 - Usar `CustomScrollView` + `SliverGrid` para build lazy (no construir todos los tiles a la vez).
+- Grupo colapsado: su `SliverGrid` **no se agrega** al `CustomScrollView` (ni se construye).
 - Envolver cada tile en `RepaintBoundary` para aislar repintados.
 
 ## Animación de arranque

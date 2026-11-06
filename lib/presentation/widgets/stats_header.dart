@@ -18,11 +18,24 @@ class StatsHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 0,
-      color: cs.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    // Mismo acabado lila tonal Material 3 que las casillas (SlotTile).
+    final lilacTop = cs.primaryContainer.withAlpha(165);
+    final lilacBottom = cs.primaryContainer.withAlpha(115);
+    final subtleText = cs.onPrimaryContainer.withAlpha(195);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [lilacTop, lilacBottom],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: cs.primary.withAlpha(75),
+          width: 1.1,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -30,12 +43,13 @@ class StatsHeader extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Icono tonal en primaryContainer (patrón M3).
+                // Icono tonal con contraste suave sobre el fondo lila.
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: cs.primaryContainer,
+                    color: cs.primary.withAlpha(32),
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: cs.primary.withAlpha(55)),
                   ),
                   child: Icon(
                     Icons.savings,
@@ -52,14 +66,16 @@ class StatsHeader extends StatelessWidget {
                       Text(
                         'Total guardado',
                         style: theme.textTheme.labelMedium
-                            ?.copyWith(color: cs.onSurfaceVariant),
+                            ?.copyWith(color: subtleText),
                       ),
                       const SizedBox(height: 2),
                       RollingNumberText(
                         numericValue: summary.total,
                         text: formatMoney(summary.total),
-                        style: theme.textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.w700),
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: cs.onPrimaryContainer,
+                        ),
                       ),
                     ],
                   ),
@@ -72,7 +88,7 @@ class StatsHeader extends StatelessWidget {
                     Text(
                       'Progreso',
                       style: theme.textTheme.labelMedium
-                          ?.copyWith(color: cs.onSurfaceVariant),
+                          ?.copyWith(color: subtleText),
                     ),
                     const SizedBox(height: 2),
                     RollingNumberText(
@@ -99,21 +115,21 @@ class StatsHeader extends StatelessWidget {
                   value: animatedValue,
                   minHeight: 8,
                   color: cs.primary,
-                  backgroundColor: cs.primary.withAlpha((0.18 * 255).round()),
+                  backgroundColor: cs.primary.withAlpha((0.22 * 255).round()),
                 ),
               ),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.checklist, size: 18, color: cs.onSurfaceVariant),
+                Icon(Icons.checklist, size: 18, color: subtleText),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Casillas totales: ${summary.checkedSlots} / '
                     '${summary.totalSlots}',
                     style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: cs.onSurfaceVariant),
+                        ?.copyWith(color: subtleText),
                   ),
                 ),
               ],

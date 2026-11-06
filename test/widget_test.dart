@@ -24,7 +24,9 @@ Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(SlotAdapter());
   await Hive.deleteBoxFromDisk('slots');
+  await Hive.deleteBoxFromDisk('collapsed_groups');
   await Hive.openBox<Slot>('slots');
+  await Hive.openBox<bool>('collapsed_groups');
 
   testWidgets('muestra el splash animado y transiciona al home',
       (WidgetTester tester) async {
@@ -91,6 +93,16 @@ Future<void> main() async {
 
     // Contraer: solo debe quedar el encabezado, sin casillas.
     await tester.tap(find.text('Monedas de \$5'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Monedas de \$5'), findsOneWidget);
+    expect(find.text('56 / 56'), findsOneWidget);
+    expect(find.text('5'), findsNothing);
+
+    // Simular cierre y reapertura de la app: el grupo debe seguir contraído.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
     expect(find.text('Monedas de \$5'), findsOneWidget);

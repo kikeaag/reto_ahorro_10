@@ -28,10 +28,6 @@ class _HomeScreenState extends State<HomeScreen>
   final ScrollController _scrollController = ScrollController();
   bool _showSavedTotalInAppBar = false;
 
-  /// Montos de los grupos **completados** que el usuario colapsó (estado de
-  /// UI puro y efímero: no persiste y al reiniciar todo arranca expandido).
-  final Set<double> _collapsedGroups = {};
-
   /// La animación de arranque se ejecuta **una sola vez** al iniciar la app
   /// (nunca al hacer scroll): el flag se limpia al terminar el controlador.
   bool _runInitialLaunchAnimation = false;
@@ -48,7 +44,19 @@ class _HomeScreenState extends State<HomeScreen>
     final controller = context.read<HomeController>();
     controller.init();
     final summary = controller.summary;
-    if (summary != null) _startStartupAnimation(summary.totalSlots);
+    if (summary != null) {
+      final visibleSlots = summary.groups
+          .where(
+            (g) =>
+                !(g.targetSlots > 0 &&
+                    g.checkedSlots == g.targetSlots &&
+                    controller.collapsedGroups.contains(g.amount)),
+          )
+          .fold<int>(0, (sum, g) => sum + g.slots.length);
+      _startStartupAnimation(
+        visibleSlots > 0 ? visibleSlots : summary.totalSlots,
+      );
+    }
   }
 
   /// Duración proporcional al nº de casillas, con tope de 2000 ms.
@@ -170,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen>
       final isComplete =
           group.targetSlots > 0 && group.checkedSlots == group.targetSlots;
       final isCollapsed =
-          isComplete && _collapsedGroups.contains(group.amount);
+          isComplete && controller.collapsedGroups.contains(group.amount);
 
       slivers.add(
         SliverPadding(
@@ -185,20 +193,17 @@ class _HomeScreenState extends State<HomeScreen>
               collapsible: isComplete,
               collapsed: isCollapsed,
               onToggle: isComplete
-                  ? () => setState(() {
-                        if (!_collapsedGroups.remove(group.amount)) {
-                          _collapsedGroups.add(group.amount);
-                        }
-                      })
+                  ? () => controller.toggleGroupCollapsed(group.amount)
                   : null,
             ),
           ),
         ),
       );
 
-      // Contraído: no se genera ni se construye el grid del grupo.
+      // Contraído: no se genera ni se construye el grid del grupo, ni suma al
+      // índice de escalonamiento para que el primer grupo expandido arranque
+      // en 0 y anime desde el inicio.
       if (isCollapsed) {
-        runningIndex += group.slots.length;
         continue;
       }
 
@@ -224,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen>
         // Solo se envuelve con la animación mientras dura el arranque.
         if (!_runInitialLaunchAnimation) return tile;
 
-        final start = (globalIndex * _staggerPerTile).clamp(0.0, 1.0);
+        final start = (globalIndex * _staggerPerTile).clamp(0.0, 0.62);
         final end = (start + 0.38).clamp(0.0, 1.0);
         final animation = CurvedAnimation(
           parent: _startupController!,

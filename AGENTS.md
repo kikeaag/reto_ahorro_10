@@ -150,9 +150,10 @@ denominado) hasta alcanzar una meta de **$5,000.00**.
   + contador **`n / total`** (casillas marcadas / casillas del grupo).
 - Grupo **completado** (`n == total`): el encabezado se vuelve tocable (icono ▾/▴) y alterna el
   colapso de sus casillas; colapsado solo quedan el título y el contador, con **18 px de margen
-  inferior** para separarlo del siguiente grupo. Estado efímero en
-  `HomeScreen` (`_collapsedGroups`): no persiste, al reiniciar todo arranca expandido y un grupo
-  incompleto siempre se muestra expandido.
+  inferior** para separarlo del siguiente grupo. El estado contraído se persiste en la caja de
+  Hive `'collapsed_groups'` (`Box<bool>`) a través de `HomeController`: al volver a abrir la app
+  se mantiene contraído, al iniciar nueva alcancía (`reset`) todo vuelve a estar expandido y un
+  grupo incompleto siempre se muestra expandido.
 - Tarjeta de estadísticas (`StatsHeader`): `Card` M3 tonal (`surfaceContainerHighest`,
   radius 16) con icono `savings` en `primaryContainer`, etiqueta **`Total guardado`** + monto
   (`$X,XXX`), **`Progreso`** + porcentaje (`XX.XX %`) a la derecha, `LinearProgressIndicator`

@@ -31,4 +31,10 @@ abstract class SlotDataSource {
 
   /// Elimina la casilla con el [id] dado (no hace nada si no existe).
   void deleteSlot(String id);
+
+  /// Montos de los grupos completados que el usuario dejó contraídos.
+  Set<double> getCollapsedGroups();
+
+  /// Marca o desmarca el grupo de monto [amount] como contraído.
+  void setGroupCollapsed(double amount, {required bool collapsed});
 }

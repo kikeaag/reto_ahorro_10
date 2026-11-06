@@ -29,4 +29,11 @@ class SavingsRepositoryImpl implements SavingsRepository {
 
   @override
   void deleteSlot(String id) => _dataSource.deleteSlot(id);
+
+  @override
+  Set<double> getCollapsedGroups() => _dataSource.getCollapsedGroups();
+
+  @override
+  void setGroupCollapsed(double amount, {required bool collapsed}) =>
+      _dataSource.setGroupCollapsed(amount, collapsed: collapsed);
 }

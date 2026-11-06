@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:money_challenge/domain/entities/slot.dart';
+import 'package:money_challenge/domain/usecases/get_collapsed_groups.dart';
 import 'package:money_challenge/domain/usecases/get_savings_summary.dart';
 import 'package:money_challenge/domain/usecases/get_slots.dart';
 import 'package:money_challenge/domain/usecases/initialize_slots.dart';
 import 'package:money_challenge/domain/usecases/reset_slots.dart';
+import 'package:money_challenge/domain/usecases/set_group_collapsed.dart';
 import 'package:money_challenge/domain/usecases/toggle_slot.dart';
 import 'package:money_challenge/infrastructure/datasources/hive_slot_datasource.dart';
 import 'package:money_challenge/infrastructure/models/slot_model.dart';
@@ -18,6 +20,7 @@ Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(SlotAdapter());
   await Hive.openBox<Slot>('slots');
+  await Hive.openBox<bool>('collapsed_groups');
 
   runApp(const MyApp());
 }
@@ -34,6 +37,8 @@ HomeController buildHomeController() {
     ToggleSlot(repository),
     const GetSavingsSummary(),
     ResetSlots(repository),
+    GetCollapsedGroups(repository),
+    SetGroupCollapsed(repository),
   );
 }
 

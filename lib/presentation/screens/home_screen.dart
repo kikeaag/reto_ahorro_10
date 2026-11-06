@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_challenge/domain/entities/savings_summary.dart';
 import 'package:money_challenge/presentation/controllers/home_controller.dart';
+import 'package:money_challenge/presentation/screens/goal_reached_screen.dart';
 import 'package:money_challenge/presentation/utils/money_format.dart';
 import 'package:money_challenge/presentation/widgets/group_header.dart';
 import 'package:money_challenge/presentation/widgets/slot_tile.dart';
@@ -203,7 +204,17 @@ class _HomeScreenState extends State<HomeScreen>
 
         final tile = SlotTile(
           slot: slot,
-          onTap: () => controller.toggle(slot.id),
+          // Si este toque cruza la meta, la lista se reemplaza por la
+          // pantalla de felicitaciones (pushReplacement: sin vuelta atrás).
+          onTap: () {
+            final reachedGoal = controller.toggle(slot.id);
+            if (!reachedGoal || !mounted) return;
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (_) => const GoalReachedScreen(),
+              ),
+            );
+          },
         );
 
         // Solo se envuelve con la animación mientras dura el arranque.

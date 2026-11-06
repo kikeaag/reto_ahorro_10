@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 1080px; height: 1920px; overflow: hidden;
+    font-family: Roboto, Arial, sans-serif;
+    background: linear-gradient(180deg, #6750A4 0%, #4F378B 100%);
+    color: #1C1B1F;
+  }
+  .caption {
+    text-align: center; color: #FFFFFF; padding: 84px 64px 48px;
+  }
+  .caption h1 { margin: 0 0 14px; font-size: 62px; font-weight: 700; }
+  .caption p  { margin: 0; font-size: 36px; color: #E8DEF8; }
+  .phone {
+    width: 900px; height: 1580px; margin: 0 auto;
+    background: #FEF7FF; border-radius: 56px 56px 0 0;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+    padding: 36px 40px; overflow: hidden;
+  }
+  .appbar {
+    font-size: 46px; font-weight: 500; padding: 18px 8px 28px; color: #1C1B1F;
+  }
+  .stats {
+    background: #E6E0E9; border-radius: 36px; padding: 36px; margin-bottom: 36px;
+  }
+  .stats-row { display: flex; justify-content: space-between; align-items: center; }
+  .stats-left { display: flex; align-items: center; gap: 24px; }
+  .pig-badge {
+    width: 96px; height: 96px; border-radius: 28px; background: #EADDFF;
+    display: flex; align-items: center; justify-content: center; font-size: 52px;
+  }
+  .label { font-size: 28px; color: #49454F; }
+  .amount { font-size: 56px; font-weight: 700; color: #6750A4; margin-top: 4px; }
+  .pct { font-size: 44px; font-weight: 700; color: #1C1B1F; text-align: right; }
+  .bar {
+    height: 22px; background: #CAC4D0; border-radius: 11px; margin: 28px 0 22px; overflow: hidden;
+  }
+  .bar-fill { width: 42%; height: 100%; background: #6750A4; border-radius: 11px; }
+  .foot { font-size: 28px; color: #49454F; }
+  .group-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 8px; font-size: 36px; font-weight: 600;
+  }
+  .chip {
+    background: #EADDFF; color: #21005D; padding: 8px 24px; border-radius: 999px; font-size: 28px;
+  }
+  .grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-bottom: 28px;
+  }
+  .tile {
+    aspect-ratio: 1; border-radius: 26px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-size: 32px; font-weight: 700;
+    background: #F3EDF7; color: #1C1B1F; border: 2px solid #CAC4D0;
+  }
+  .tile.checked {
+    background: #6750A4; color: #FFFFFF; border-color: #6750A4;
+  }
+  .check { font-size: 26px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+  <div class="caption">
+    <h1>Tu reto de ahorro a $5,000</h1>
+    <p>Marca cada moneda o billete y mira crecer tu alcancía</p>
+  </div>
+  <div class="phone">
+    <div class="appbar">Alcancía 5k</div>
+    <div class="stats">
+      <div class="stats-row">
+        <div class="stats-left">
+          <div class="pig-badge">🐷</div>
+          <div>
+            <div class="label">Total guardado</div>
+            <div class="amount">$2,100</div>
+          </div>
+        </div>
+        <div>
+          <div class="label" style="text-align:right">Progreso</div>
+          <div class="pct">42.00 %</div>
+        </div>
+      </div>
+      <div class="bar"><div class="bar-fill"></div></div>
+      <div class="foot">☑ Casillas totales: 86 / 184</div>
+    </div>
+
+    <div class="group-head">
+      <span>Monedas de $5</span>
+      <span class="chip">15 / 56</span>
+    </div>
+    <div class="grid">
+      <div class="tile checked"><span class="check">✓</span>$5</div>
+      <div class="tile checked"><span class="check">✓</span>$5</div>
+      <div class="tile checked"><span class="check">✓</span>$5</div>
+      <div class="tile checked"><span class="check">✓</span>$5</div>
+      <div class="tile checked"><span class="check">✓</span>$5</div>
+      <div class="tile checked"><span class="check">✓</span>$5</div>
+      <div class="tile checked"><span class="check">✓</span>$5</div>
+      <div class="tile">$5</div>
+      <div class="tile">$5</div>
+      <div class="tile">$5</div>
+    </div>
+
+    <div class="group-head">
+      <span>Billetes de $20</span>
+      <span class="chip">20 / 54</span>
+    </div>
+    <div class="grid">
+      <div class="tile checked"><span class="check">✓</span>$20</div>
+      <div class="tile checked"><span class="check">✓</span>$20</div>
+      <div class="tile checked"><span class="check">✓</span>$20</div>
+      <div class="tile">$20</div>
+      <div class="tile">$20</div>
+    </div>
+  </div>
+</body>
+</html>

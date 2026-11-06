@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 1080px; height: 1920px; overflow: hidden;
+    font-family: Roboto, Arial, sans-serif;
+    background: linear-gradient(180deg, #4F378B 0%, #6750A4 100%);
+  }
+  .caption {
+    text-align: center; color: #FFFFFF; padding: 84px 64px 48px;
+  }
+  .caption h1 { margin: 0 0 14px; font-size: 62px; font-weight: 700; }
+  .caption p  { margin: 0; font-size: 36px; color: #E8DEF8; }
+  .phone {
+    width: 900px; height: 1580px; margin: 0 auto;
+    background: linear-gradient(180deg, #EADDFF 0%, #FEF7FF 100%);
+    border-radius: 56px 56px 0 0;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+    padding: 72px 56px; text-align: center; color: #1C1B1F;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .circle {
+    width: 210px; height: 210px; border-radius: 105px; background: #6750A4;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 110px; color: #FFF; margin-top: 36px;
+    box-shadow: 0 16px 40px rgba(103,80,164,0.35);
+  }
+  h2 { font-size: 68px; margin: 42px 0 12px; color: #1C1B1F; }
+  .sub { font-size: 38px; color: #49454F; margin-bottom: 48px; }
+  .glass {
+    width: 100%; background: rgba(255,255,255,0.68);
+    border: 2px solid rgba(255,255,255,0.9); border-radius: 36px;
+    padding: 44px; margin-bottom: 36px;
+    box-shadow: 0 16px 40px rgba(103,80,164,0.14);
+  }
+  .row { display: flex; justify-content: space-between; margin: 14px 0; font-size: 36px; }
+  .val { font-weight: 700; color: #6750A4; font-size: 44px; }
+  .foot { font-size: 30px; color: #49454F; margin: 16px 0 56px; }
+  .btn-out, .btn-fill {
+    width: 100%; padding: 28px; border-radius: 999px; font-size: 34px; font-weight: 600;
+    margin-top: 22px;
+  }
+  .btn-out { border: 3px solid #6750A4; color: #6750A4; background: transparent; }
+  .btn-fill { background: #6750A4; color: #FFFFFF; border: none; }
+</style>
+</head>
+<body>
+  <div class="caption">
+    <h1>¡Celebra al alcanzar la meta!</h1>
+    <p>Comparte tu logro o inicia una nueva alcancía cuando quieras</p>
+  </div>
+  <div class="phone">
+    <div class="circle">🐷</div>
+    <h2>¡Felicidades!</h2>
+    <div class="sub">Has alcanzado la meta de $5,000</div>
+    <div class="glass">
+      <div class="row"><span>Total guardado</span><span class="val">$5,000</span></div>
+      <div class="row"><span>Progreso</span><span class="val">100.00 %</span></div>
+    </div>
+    <div class="foot">Completaste las 184 casillas de tu alcancía.</div>
+    <div class="btn-out">📤 &nbsp;Compartir logro</div>
+    <div class="btn-fill">🔄 &nbsp;Iniciar nueva alcancía</div>
+  </div>
+</body>
+</html>

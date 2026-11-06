@@ -25,5 +25,8 @@ class SavingsRepositoryImpl implements SavingsRepository {
   void saveSlots(List<Slot> slots) => _dataSource.putSlots(slots);
 
   @override
+  void resetSlots() => _dataSource.resetSlots();
+
+  @override
   void deleteSlot(String id) => _dataSource.deleteSlot(id);
 }

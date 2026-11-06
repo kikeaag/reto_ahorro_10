@@ -23,6 +23,12 @@ abstract class SlotDataSource {
   /// Inserta o reemplaza varias casillas en lote.
   void putSlots(List<Slot> slots);
 
+  /// Pone `checked: false` en **todas** las casillas (reset del ahorro).
+  ///
+  /// No borra la box ni los ids: solo limpia el marcado, de modo que la
+  /// reconciliación al arrancar sigue funcionando igual.
+  void resetSlots();
+
   /// Elimina la casilla con el [id] dado (no hace nada si no existe).
   void deleteSlot(String id);
 }

@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="money_challenge"
+        android:label="Alcancía 5k"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

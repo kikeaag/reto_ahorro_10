@@ -39,6 +39,17 @@ class HiveSlotDataSource implements SlotDataSource {
   }
 
   @override
+  void resetSlots() {
+    // Solo desmarca: se reescribe cada casilla con `checked: false`
+    // conservando id y monto (no se borra la box).
+    _ignoreDisk(
+      _box.putAll({
+        for (final slot in _box.values) slot.id: slot.copyWith(checked: false),
+      }),
+    );
+  }
+
+  @override
   void deleteSlot(String id) => _ignoreDisk(_box.delete(id));
 
   /// La memoria ya está actualizada al salir de aquí; solo se engancha un

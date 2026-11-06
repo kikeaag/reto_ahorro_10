@@ -4,6 +4,7 @@ import 'package:money_challenge/domain/entities/slot.dart';
 import 'package:money_challenge/domain/usecases/get_savings_summary.dart';
 import 'package:money_challenge/domain/usecases/get_slots.dart';
 import 'package:money_challenge/domain/usecases/initialize_slots.dart';
+import 'package:money_challenge/domain/usecases/reset_slots.dart';
 import 'package:money_challenge/domain/usecases/toggle_slot.dart';
 import 'package:money_challenge/infrastructure/datasources/hive_slot_datasource.dart';
 import 'package:money_challenge/infrastructure/models/slot_model.dart';
@@ -32,6 +33,7 @@ HomeController buildHomeController() {
     GetSlots(repository),
     ToggleSlot(repository),
     const GetSavingsSummary(),
+    ResetSlots(repository),
   );
 }
 

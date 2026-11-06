@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:money_challenge/domain/entities/denomination_group.dart';
 import 'package:money_challenge/domain/entities/savings_summary.dart';
 import 'package:money_challenge/domain/usecases/get_savings_summary.dart';
 import 'package:money_challenge/domain/usecases/get_slots.dart';
 import 'package:money_challenge/domain/usecases/initialize_slots.dart';
+import 'package:money_challenge/domain/usecases/reset_slots.dart';
 import 'package:money_challenge/domain/usecases/toggle_slot.dart';
 
 /// Estado de la pantalla principal, expuesto a la UI con `provider`.
@@ -16,12 +18,14 @@ class HomeController extends ChangeNotifier {
     this._getSlots,
     this._toggleSlot,
     this._getSavingsSummary,
+    this._resetSlots,
   );
 
   final InitializeSlots _initializeSlots;
   final GetSlots _getSlots;
   final ToggleSlot _toggleSlot;
   final GetSavingsSummary _getSavingsSummary;
+  final ResetSlots _resetSlots;
 
   SavingsSummary? _summary;
   bool _initialized = false;
@@ -45,8 +49,28 @@ class HomeController extends ChangeNotifier {
   ///
   /// El caso de toggle nunca llama a `setState` (ver AGENTS.md): la escritura
   /// se aplica en memoria y el repinte llega por `notifyListeners()`.
-  void toggle(String id) {
+  ///
+  /// Devuelve `true` solo cuando este toque **cruza la meta**: el total pasó
+  /// de menor que [goal] a [goal] o más. Así la pantalla principal sabe que
+  /// debe mostrar la felicitaciones sin tener que calcular el umbral ella.
+  /// (Al iniciar ya completada no hay cruce, así que `init()` nunca lo
+  /// activa: la celebración es exclusiva de marcar la última casilla.)
+  bool toggle(String id) {
+    final before = _summary?.total ?? 0;
     _toggleSlot(id);
+    _summary = _getSavingsSummary(_getSlots());
+    notifyListeners();
+    return before < goal && _summary!.total >= goal;
+  }
+
+  /// Desmarca todas las casillas y publica el resumen en cero.
+  ///
+  /// Se invoca desde el botón "Iniciar nueva alcancía" de la pantalla de
+  /// felicitaciones, **antes** de navegar al home: `init()` es idempotente
+  /// y no recalcularía el resumen, así que sin este paso la pantalla nueva
+  /// mostraría el total viejo.
+  void reset() {
+    _resetSlots();
     _summary = _getSavingsSummary(_getSlots());
     notifyListeners();
   }

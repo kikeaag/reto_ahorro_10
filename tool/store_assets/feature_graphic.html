@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; width: 1024px; height: 500px; overflow: hidden; }
+  body {
+    background: linear-gradient(135deg, #6750A4 0%, #4F378B 55%, #381E72 100%);
+    font-family: Roboto, Arial, sans-serif;
+    position: relative;
+  }
+  .content {
+    position: absolute; left: 72px; top: 0; height: 100%;
+    display: flex; flex-direction: column; justify-content: center;
+    color: #FFFFFF;
+  }
+  h1 { margin: 0 0 14px 0; font-size: 76px; font-weight: 700; letter-spacing: -1px; }
+  p  { margin: 0; font-size: 34px; font-weight: 400; color: #E8DEF8; }
+  .badge {
+    display: inline-block; margin-top: 26px; padding: 10px 26px;
+    background: rgba(255,255,255,0.16); border: 2px solid rgba(255,255,255,0.45);
+    border-radius: 999px; font-size: 28px; font-weight: 500; width: fit-content;
+  }
+  .piggy { position: absolute; right: 64px; top: 50%; transform: translateY(-50%); }
+</style>
+</head>
+<body>
+  <div class="content">
+    <h1>Alcancía 5k</h1>
+    <p>Reto de ahorro: marca casillas y llega a $5,000</p>
+    <div class="badge">100% local · sin cuentas · sin anuncios</div>
+  </div>
+  <svg class="piggy" width="330" height="330" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <g opacity="0.96">
+      <path d="M96 252 q-34 -14 -30 26 q4 30 30 22" stroke="#FFFFFF" stroke-width="16"
+            fill="none" stroke-linecap="round"/>
+      <ellipse cx="238" cy="292" rx="148" ry="114" fill="#FFFFFF"/>
+      <rect x="158" y="368" width="56" height="74" rx="20" fill="#FFFFFF"/>
+      <rect x="288" y="368" width="56" height="74" rx="20" fill="#FFFFFF"/>
+      <path d="M336 196 L392 178 L378 240 Z" fill="#FFFFFF"/>
+      <circle cx="368" cy="268" r="86" fill="#FFFFFF"/>
+      <ellipse cx="446" cy="292" rx="36" ry="31" fill="#FFFFFF"/>
+      <circle cx="458" cy="283" r="6.5" fill="#6750A4"/>
+      <circle cx="458" cy="301" r="6.5" fill="#6750A4"/>
+      <circle cx="396" cy="246" r="11" fill="#6750A4"/>
+      <rect x="212" y="196" width="94" height="20" rx="10" fill="#6750A4"/>
+      <circle cx="259" cy="132" r="44" fill="#FFD54F"/>
+      <circle cx="259" cy="132" r="33" fill="none" stroke="#F9A825" stroke-width="5"/>
+      <text x="259" y="147" font-family="Roboto, Arial, sans-serif" font-size="42"
+            font-weight="700" fill="#F57F17" text-anchor="middle">$</text>
+    </g>
+  </svg>
+</body>
+</html>

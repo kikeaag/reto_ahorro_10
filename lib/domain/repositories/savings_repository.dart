@@ -22,6 +22,9 @@ abstract class SavingsRepository {
   /// Guarda varias casillas en lote.
   void saveSlots(List<Slot> slots);
 
+  /// Pone `checked: false` en todas las casillas (reset del ahorro).
+  void resetSlots();
+
   /// Elimina la casilla con el [id] dado.
   void deleteSlot(String id);
 }

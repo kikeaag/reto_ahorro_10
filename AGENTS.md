@@ -7,7 +7,8 @@ Guía de reglas de negocio e invariantes para trabajar en esta app. Léela antes
 App Flutter de reto de ahorro: el usuario marca casillas (cada una representa una moneda de cierto
 denominado) hasta alcanzar una meta de **$5,000.00**.
 
-- **Stack:** Flutter 3.44.9 (stable) · Dart `^3.12.2` · Hive (almacenamiento local) · `provider`
+- **Stack:** Flutter 3.44.9 (stable) · Dart `^3.12.2` · Hive (almacenamiento local) ·
+  `provider` · `confetti` (pantalla de felicitaciones) · `share_plus` (compartir logro)
 - **Sin backend:** todos los datos viven en el dispositivo, sin sincronización ni backup.
 - **Arquitectura por capas:** `domain` (reglas puras) → `infrastructure` (Hive) →
   `presentation` (UI). La UI **nunca** habla con Hive: pasa por casos de uso y
@@ -21,10 +22,11 @@ denominado) hasta alcanzar una meta de **$5,000.00**.
 | `lib/domain/entities/` | Entidades puras (sin Flutter ni Hive): `Slot`, `DenominationGroup` (+ `goal`, `denominationGroups`), `SavingsSummary`/`GroupProgress`. |
 | `lib/domain/datasources/slot_datasource.dart` | Interfaz de acceso a datos de casillas. |
 | `lib/domain/repositories/savings_repository.dart` | Interfaz de persistencia; es lo único que usan los casos de uso. |
-| `lib/domain/usecases/` | `InitializeSlots`, `GetSlots`, `ToggleSlot`, `GetSavingsSummary`. |
+| `lib/domain/usecases/` | `InitializeSlots`, `GetSlots`, `ToggleSlot`, `GetSavingsSummary`, `ResetSlots`. |
 | `lib/infrastructure/` | Implementación concreta: `models/slot_model.dart` (`SlotAdapter`), `datasources/hive_slot_datasource.dart`, `repositories/savings_repository_impl.dart`. |
 | `lib/presentation/controllers/home_controller.dart` | `ChangeNotifier` que publica el `SavingsSummary`; **única vía de escritura desde la UI**. |
 | `lib/presentation/screens/home_screen.dart` | UI pura: slivers, grid y animación de arranque. |
+| `lib/presentation/screens/goal_reached_screen.dart` | Pantalla de felicitaciones (`GoalReachedScreen`): se abre con `pushReplacement` al cruzar la meta; confeti (`confetti`), resumen final y botones de compartir (`share_plus`) y reinicio. |
 | `lib/presentation/utils/money_format.dart` | Helper `formatMoney` (entero + separador de miles, sin centavos). |
 | `lib/presentation/widgets/` | `StatsHeader`, `GroupHeader`, `SlotTile`. |
 | `test/widget_test.dart` | Único test. Depende de textos y del conteo de casillas (ver invariantes). |
@@ -59,8 +61,46 @@ denominado) hasta alcanzar una meta de **$5,000.00**.
    **`5.0_1`**, `10.0_7`, `500.0_4`… (no `5_1`). Se usa para deduplicar y reconciliar: **no
    cambiar el patrón** ni el tipo de `amount`, o existentes data se leería como malformada.
 4. **Interacción solo de toggle:** desde la UI solo se marca/desmarca una casilla. No existe
-   edición de montos ni borrado de casillas por el usuario. Colapsar un grupo completado es
+   edición de montos ni borrado de casillas por el usuario (la única excepción es el reset
+   de "Iniciar nueva alcancía", ver *Meta alcanzada*). Colapsar un grupo completado es
    estado visual efímero: **no modifica datos**.
+
+### Meta alcanzada (felicitaciones)
+
+- `HomeController.toggle(id)` devuelve **`bool`**: `true` solo cuando ese toque **cruza**
+  la meta (`antes < goal && después >= goal`). Es la única señal que dispara la
+  felicitación; no duplicar el cálculo del umbral en la UI.
+- `HomeScreen` navega con **`Navigator.pushReplacement`** a `GoalReachedScreen`:
+  la pantalla final **reemplaza** al home (sin vuelta atrás a la lista; el botón
+  atrás del sistema cierra la app).
+- **`init()` nunca la dispara**: abrir la app ya completada no vuelve a celebrar;
+  la celebración es exclusiva de marcar la última casilla. Si el usuario desmarca
+  y vuelve a marcar, celebra de nuevo (es otro cruce).
+- La pantalla es UI pura: lee el resumen con `context.read<HomeController>().summary`
+  y no persiste nada.
+- **Reset (`ResetSlots`):** su única acción es el botón **`Iniciar nueva alcancía`**
+  (`FilledButton.icon` con `refresh`), que llama a `HomeController.reset()` y luego
+  `pushReplacement` a un `HomeScreen` nuevo. `reset()` desmarca las 184 casillas
+  (**no borra la box ni los ids**) y **recalcula el resumen** antes de navegar:
+  `init()` es idempotente y no lo haría, así que sin ese paso el home nuevo
+  mostraría el total viejo. Es la **única** operación que limpia `checked`.
+- **Compartir (`Compartir logro`):** `OutlinedButton.icon` con `share` que, con
+  `share_plus`, abre la **hoja de compartir del sistema** (WhatsApp, X, Facebook…).
+  Adjunta dos cosas: el mensaje de texto (`¡Alcancé mi meta de ahorro! 🐷💰` +
+  `$5,000 en la Alcancía 5k — 184/184 casillas completadas.` + bloque
+  **`📲 Descarga la app`** con las ligas de Google Play y App Store) y un **PNG de la
+  pantalla completa** capturado con el `RepaintBoundary` que envuelve el `body`
+  (`_repaintKey` → `toImage` → `XFile.fromData`). Si la captura falla, se
+  comparte **solo el texto** (nunca rompe el share). **No navega ni modifica
+  datos.** El contexto se lee siempre antes del primer `await` (lint
+  `use_build_context_synchronously`); el `sharePositionOrigin` del botón (vía
+  `Builder`) es el ancla del popover en iPad.
+- **Ligas de descarga:** viven como constantes en
+  `lib/presentation/utils/app_download_links.dart` (`kPlayStoreUrl`,
+  `kAppStoreUrl`). **Son placeholders**: reemplazar por las URLs reales de las
+  fichas publicadas antes de compartir en producción (ahí se cambian, y solo
+  ahí). Van **dentro del `text`** del share porque `share_plus` **no permite**
+  `text` y `uri` al mismo tiempo.
 
 ### Cálculos
 
@@ -121,7 +161,25 @@ denominado) hasta alcanzar una meta de **$5,000.00**.
 - Tema: Material 3 con semilla lila **`#6750A4`** como `primary` exacto, `onPrimary` blanco.
   Fuente de toda la app: **Roboto** (variable, `fonts/Roboto-Variable.ttf`, familia `Roboto`
   declarada en `pubspec.yaml` y `fontFamily` del `ThemeData`).
-- Los textos anteriores los assertúa el test: si los cambias, actualiza `test/widget_test.dart`.
+- Pantalla de felicitaciones (`GoalReachedScreen`): **sin AppBar** y sin retorno a la
+  lista, fondo degradado `primaryContainer → surface`, confeti en loop desde el centro
+  superior (paquete `confetti`), icono `savings` en círculo `primary`, **`¡Felicidades!`**,
+  **`Has alcanzado la meta de $5,000`**, tarjeta con **`Total guardado`** / **`$5,000`** y
+  **`Progreso`** / **`100.00 %`**, pie `Completaste las 184 casillas de tu alcancía.` y,
+  hasta abajo dos botones ancho completo: `OutlinedButton.icon` con `share` y texto
+  **`Compartir logro`** (encima) y `FilledButton.icon` con `refresh` y texto
+  **`Iniciar nueva alcancía`** (abajo, acción principal).
+- **Tarjeta de vidrio** (felicitaciones): estilo *glassmorphism* compuesto por
+  sombra `primary` suave por fuera → `ClipRRect` (radio 16) → `BackdropFilter`
+  con `ui.ImageFilter.blur(sigma: 18)` que desenfoca el degradado y el confeti
+  de atrás → relleno `Colors.white.withValues(alpha: 0.42)` → borde de 1 px
+  con degradado blanco (0.9 → 0.25) pintado por `_GlassBorderPainter`
+  (`CustomPaint(foregroundPainter:)`). **No existe `GradientBorder` en Flutter
+  3.44.9**, por eso el borde es un painter propio y no un `border:` de
+  `BoxDecoration`. El `ClipRRect` va **antes** del `BackdropFilter` para que el
+  blur no sobresalga en forma rectangular detrás de las esquinas redondas.
+- Los textos anteriores (incluidos los de la felicitación) los assertúa
+  `test/widget_test.dart`: si los cambias, actualiza el test.
 
 ## Rendimiento (reglas que el código ya establece — mantenerlas)
 

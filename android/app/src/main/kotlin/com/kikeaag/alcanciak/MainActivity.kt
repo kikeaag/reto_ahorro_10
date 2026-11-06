@@ -1,4 +1,4 @@
-package com.example.money_challenge
+package com.kikeaag.alcanciak
 
 import io.flutter.embedding.android.FlutterActivity
 

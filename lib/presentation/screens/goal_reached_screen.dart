@@ -335,9 +335,9 @@ class _GoalReachedScreenState extends State<GoalReachedScreen>
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: cs.primary.withAlpha(46),
-                                      blurRadius: 26,
-                                      offset: const Offset(0, 10),
+                                      color: cs.primary.withAlpha(20),
+                                      blurRadius: 24,
+                                      offset: const Offset(0, 8),
                                     ),
                                   ],
                                 ),
@@ -345,8 +345,8 @@ class _GoalReachedScreenState extends State<GoalReachedScreen>
                                   borderRadius: BorderRadius.circular(16),
                                   child: BackdropFilter(
                                     filter: ui.ImageFilter.blur(
-                                      sigmaX: 18,
-                                      sigmaY: 18,
+                                      sigmaX: 12,
+                                      sigmaY: 12,
                                     ),
                                     // El borde de "canto de vidrio" se pinta
                                     // con un CustomPaint: `BoxDecoration` no
@@ -368,7 +368,7 @@ class _GoalReachedScreenState extends State<GoalReachedScreen>
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: Colors.white.withValues(
-                                            alpha: 0.42,
+                                            alpha: 0.10,
                                           ),
                                           borderRadius:
                                               BorderRadius.circular(16),
@@ -393,7 +393,8 @@ class _GoalReachedScreenState extends State<GoalReachedScreen>
                                                   .symmetric(
                                                 horizontal: 24,
                                               ),
-                                              color: cs.outlineVariant,
+                                              color: cs.outlineVariant
+                                                  .withValues(alpha: 0.55),
                                             ),
                                             _FinalStat(
                                               label: 'Progreso',

@@ -172,8 +172,8 @@ denominado) hasta alcanzar una meta de **$5,000.00**.
   **`Iniciar nueva alcancía`** (abajo, acción principal).
 - **Tarjeta de vidrio** (felicitaciones): estilo *glassmorphism* compuesto por
   sombra `primary` suave por fuera → `ClipRRect` (radio 16) → `BackdropFilter`
-  con `ui.ImageFilter.blur(sigma: 18)` que desenfoca el degradado y el confeti
-  de atrás → relleno `Colors.white.withValues(alpha: 0.42)` → borde de 1 px
+  con `ui.ImageFilter.blur(sigma: 12)` que desenfoca el degradado y el confeti
+  de atrás → relleno `Colors.white.withValues(alpha: 0.10)` → borde de 1 px
   con degradado blanco (0.9 → 0.25) pintado por `_GlassBorderPainter`
   (`CustomPaint(foregroundPainter:)`). **No existe `GradientBorder` en Flutter
   3.44.9**, por eso el borde es un painter propio y no un `border:` de
